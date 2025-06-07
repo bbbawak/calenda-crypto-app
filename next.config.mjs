@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  basePath: '/calenda-crypto-app',
   images: {
     // Disable image optimization and allow any external domains
     unoptimized: true,
