@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages
+name: Deploy Next.js to GitHub Pages
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ github-pages ]
   workflow_dispatch:
 
 permissions:
@@ -35,11 +35,13 @@ jobs:
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        
+        with:
+          static_site_generator: next
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: ./.next
 
   deploy:
     environment:
