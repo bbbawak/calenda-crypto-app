@@ -1,5 +1,3 @@
-"use client";
-
 import TopicDetails from '@/components/Cryptohub/TopicDetails';
 import React from 'react'
 
