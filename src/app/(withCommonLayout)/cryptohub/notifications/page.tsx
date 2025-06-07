@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AuthGuard from "@/components/Auth/AuthGuard";
+// import AuthGuard from "@/components/Auth/AuthGuard";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,30 +13,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   BadgeCheck,
+  Bell,
   Heart,
   MessageCircle,
   MoreVertical,
-  Bell,
 } from "lucide-react";
 import socket from "@/redux/features/api/socketClient";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IoNotificationsCircle } from "react-icons/io5";
-import { useGetNotificationByUseridQuery } from "@/redux/features/api/authApi";
+import { useGetNotificationByUseridQuery, useGetAllNotificationQuery } from "@/redux/features/api/authApi";
 import Loading from "@/components/Shared/Loading";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { setPaths } from "@/redux/features/slices/authSlice";
+import TrendingTopic from "@/components/Cards/TrendingTopic";
 
 // Define types for notifications
-type Notification = {
+interface Notification {
   id: string;
-  senderId: string;
-  message: string;
   type: "LIKE" | "COMMENT" | "FOLLOW";
+  message: string;
   timestamp: string;
+  senderId: string;
+  userId: string;
   postId?: string;
-  category?: string;
-};
+  read: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -52,24 +56,16 @@ export default function NotificationPage() {
   
   // Handle real-time notifications
   useEffect(() => {
-    socket.on("connect", () => {});
-
-    socket.on("receiveNotification", (notification: Notification) => {
-      setNotifications((prevNotifications) => [
-        notification,
-        ...prevNotifications,
-      ]);
-    });
-    
-    const userId = user?.id;
-    if (userId) {
-      socket.emit("joinUserRoom", userId);
+    if (typeof window !== "undefined") {
+      if (
+        previousPath !== "/cryptohub/notifications" &&
+        currentPath === "/cryptohub/notifications"
+      ) {
+        dispatch(setPaths(pathName));
+        window.location.reload();
+      }
     }
-    
-    return () => {
-      socket.off("receiveNotification");
-    };
-  }, [user?.id]);
+  }, [previousPath, currentPath, pathName, dispatch]);
   
   useEffect(() => {
     if (allNotificationData?.data?.length) {
@@ -78,7 +74,10 @@ export default function NotificationPage() {
   }, [allNotificationData]);
 
   if (window) {
-    if (previousPath !== "/cryptohub/notifications" && currentPath === "/cryptohub/notifications") {
+    if (
+      previousPath !== "/cryptohub/notifications" &&
+      currentPath === "/cryptohub/notifications"
+    ) {
       dispatch(setPaths(pathName));
       window.location.reload();
     }
@@ -87,16 +86,23 @@ export default function NotificationPage() {
   if (allNotificationDataLoading) {
     return <Loading />;
   }
-  
+
   const handleShowMore = () => {
-    setVisibleCount((prevCount) => prevCount + 20);
+    setVisibleCount(visibleCount + 20);
   };
-  
+
   const visibleNotifications = notifications.slice(0, visibleCount);
-  
+
   return (
-    <AuthGuard>
+    // <AuthGuard>
       <div className="min-h-screen bg-[#0000004f]">
+        {!user && (
+          <div className="bg-blue-900/20 border border-blue-400/30 rounded-lg p-4 m-4">
+            <p className="text-blue-300 text-sm">
+              💡 Sign in to receive personalized notifications and updates about your crypto interests!
+            </p>
+          </div>
+        )}
         <div className="max-w-2xl mx-auto p-4">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -132,19 +138,25 @@ export default function NotificationPage() {
 
           {/* Notifications List */}
           <div className="space-y-4">
-            {visibleNotifications?.map((notification) => {
-              if (notification?.senderId === user?.id) return;
-              return (
-                <NotificationCard
-                  key={notification.id}
-                  notification={notification}
-                />
-              );
-            })}
+            {user ? (
+              visibleNotifications?.map((notification) => {
+                if (notification?.senderId === user?.id) return;
+                return (
+                  <NotificationCard
+                    key={notification.id}
+                    notification={notification}
+                  />
+                );
+              })
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400">Sign in to view your notifications</p>
+              </div>
+            )}
           </div>
 
           {/* Show More Button */}
-          {visibleCount < notifications.length && (
+          {user && visibleCount < notifications.length && (
             <div className="flex justify-center mt-4">
               <Button
                 onClick={handleShowMore}
@@ -157,55 +169,9 @@ export default function NotificationPage() {
           )}
         </div>
       </div>
-    </AuthGuard>
+    // </AuthGuard>
   );
 }
-// Component to render different notification types
-// const NotificationCard = ({ notification }: { notification: Notification }) => {
-//   return (
-//     <Card className="bg-transparent border-cyan-400/30 p-4">
-//       <div className="flex">
-//         <Avatar />
-//         <div className="flex-1 space-y-1">
-//           <div className="flex items-center gap-1">
-//             <h1 className="text-white"><IoNotificationsCircle className="size-10 mr-3" /></h1>
-//             {notification.type === "LIKE" && (
-//               <div className=" flex justify-between w-full items-center gap-3">
-//                 <div className=" flex gap-2 items-center">
-
-//                   <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
-//                   <p className="text-gray-400">{notification?.message}</p>
-//                 </div>
-//                 <Link href={`/cryptohub/userProfile/${notification?.senderId}`} className=" px-2 py-2 rounded-md hover:bg-cyan-500 shadow-white transition-all font-sans bg-cyan-700 text-white">Visit Profile</Link>
-//               </div>
-//             )}
-//             {notification.type === "COMMENT" && (
-//               <div className=" flex justify-between w-full items-center gap-3">
-//                 <div className=" flex gap-2 items-center">
-
-//                   <MessageCircle className="h-5 w-5 text-cyan-400" />
-//                   <p className="text-gray-400">{notification?.message}</p>
-//                 </div>
-//                 <Link href={`/cryptohub/userProfile/${notification?.senderId}`} className=" px-2 py-2 rounded-md hover:bg-cyan-500 shadow-white transition-all font-sans bg-cyan-700 text-white">Visit Profile</Link>
-//               </div>
-//             )}
-//             {notification.type === "FOLLOW" && (
-//               <div className=" flex justify-between w-full items-center gap-3">
-//                 <div className=" flex gap-2 items-center">
-
-//                   <BadgeCheck className="h-4 w-4 fill-blue-400 text-white" />
-//                   <p className="text-gray-400">{notification?.message}</p>
-//                 </div>
-//                 <Link href={`/cryptohub/userProfile/${notification?.senderId}`} className=" px-2 py-2 rounded-md hover:bg-cyan-500 shadow-white transition-all font-sans bg-cyan-700 text-white">Visit Profile</Link>
-//               </div>
-//             )}
-//           </div>
-//           <p className="text-xs text-gray-500">{notification.timestamp}</p>
-//         </div>
-//       </div>
-//     </Card>
-//   );
-// };
 
 // Existing NotificationCard component
 const NotificationCard = ({ notification }: { notification: Notification }) => {

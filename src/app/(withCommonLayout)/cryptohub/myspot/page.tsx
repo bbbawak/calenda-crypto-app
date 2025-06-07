@@ -2,11 +2,11 @@
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 import { usePathname } from 'next/navigation'
 import { setPaths } from '@/redux/features/slices/authSlice'
-import AuthGuard from "@/components/Auth/AuthGuard"
+// import AuthGuard from "@/components/Auth/AuthGuard"
 import RecommendedAccounts from "@/components/Cards/RecommendedAccounts"
 import TrendingTopic from "@/components/Cards/TrendingTopic"
 import VerifiedAccounts from "@/components/Cards/VerifiedAccounts"
-import MyProfilePage from "@/components/Cryptohub/MyProfile"
+import MyProfile from "@/components/Cryptohub/MyProfile"
 
 const MySpotPage = () => {
   const dispatch = useAppDispatch();
@@ -21,7 +21,7 @@ const MySpotPage = () => {
     }
   }
   return (
-    <AuthGuard>
+    // <AuthGuard>
       <div className="flex gap-4 flex-1 p-4 flex-wrap justify-center  min-h-screen bg-[#00000027]">
         {/* Main Feed */}
         <div className="flex-1">
@@ -31,8 +31,7 @@ const MySpotPage = () => {
               <div className="absolute inset-0" />
             </div>
 
-            <MyProfilePage />
-
+            <MyProfile />
 
           </div>
         </div>
@@ -43,7 +42,7 @@ const MySpotPage = () => {
         </div>
 
       </div>
-    </AuthGuard>
+    // </AuthGuard>
   )
 }
 
