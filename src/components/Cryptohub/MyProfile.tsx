@@ -45,8 +45,24 @@ export default function MyProfilePage() {
     const [ isEditModalOpen, setIsEditModalOpen ] = useState(false);
 
 
+    // Show sign-in message instead of redirecting
     if (!currentUser) {
-        router.push("/auth/login");
+        return (
+            <div className="w-full max-w-6xl mx-auto text-white text-center py-20">
+                <div className="bg-[#1a1a1a] rounded-lg p-8 border border-cyan-400/20">
+                    <h2 className="text-2xl font-bold mb-4 text-cyan-400">My Profile</h2>
+                    <p className="text-gray-300 mb-6">
+                        Sign in to view and manage your profile, posts, and crypto community interactions.
+                    </p>
+                    <Button 
+                        onClick={() => router.push("/auth/login")}
+                        className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-2"
+                    >
+                        Sign In
+                    </Button>
+                </div>
+            </div>
+        );
     }
 
 

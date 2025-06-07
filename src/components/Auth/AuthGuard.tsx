@@ -1,52 +1,3 @@
-
-// "use client"
-// import { useGetUserByIdQuery } from '@/redux/features/api/authApi';
-// import { useAppSelector } from '@/redux/hooks';
-// import { useRouter } from 'next/navigation';
-// import { ReactNode, useEffect, useState } from 'react';
-// import toast from 'react-hot-toast';
-// import { IUser } from '../Cryptohub/Types';
-
-// const AuthGuard = ({ children }: { children: ReactNode }) => {
-//     const router = useRouter();
-//     const user: IUser = useAppSelector((state) => state.auth.user);
-//     const { data: userFromDb, isLoading: userFromDbLoading } = useGetUserByIdQuery(user?.id || null);
-//     const [ toastShown, setToastShown ] = useState(false);
-
-//     useEffect(() => {
-
-//         if (!user && !toastShown) {
-//             toast.error("Please Login First!");
-//             setToastShown(true);
-//             router.push("/auth/login");
-//             return;
-//         }
-//     }, [ user, router, toastShown ]);
-
-//     if (userFromDbLoading) return null;
-//     if (!user || !userFromDb && !toastShown) {
-//         toast.error("Please Login First!");
-//         setToastShown(true);
-//         router.push("/auth/login");
-//         return;
-//     }
-
-//     if (!user) {
-//         return null;
-//     }
-//     if ((userFromDb as { data: { isDeleted: boolean } }).data.isDeleted) {
-//         toast.error("user is blocked");
-//         setToastShown(true);
-//         router.push("/auth/login");
-//         return;
-//     }
-
-//     return <div>{children}</div>;
-// };
-
-// export default AuthGuard;
-
-
 "use client"
 import { useGetUserByIdQuery } from '@/redux/features/api/authApi';
 import { useAppSelector } from '@/redux/hooks';
@@ -61,34 +12,36 @@ const AuthGuard = ({ children }: { children: ReactNode }) => {
     const { data: userFromDb, isLoading: userFromDbLoading } = useGetUserByIdQuery(user?.id || null, { skip: !user?.id });
     const [ toastShown, setToastShown ] = useState(false);
 
-    useEffect(() => {
-        if (!user && !toastShown) {
-            toast.error("Please Login First!");
-            setToastShown(true);
-            router.push("/auth/login");
-        }
-    }, [ user, router, toastShown ]);
+    // Disable authentication redirects - allow access without login
+    // useEffect(() => {
+    //     if (!user && !toastShown) {
+    //         toast.error("Please Login First!");
+    //         setToastShown(true);
+    //         router.push("/auth/login");
+    //     }
+    // }, [ user, router, toastShown ]);
 
-    if (userFromDbLoading) return null;
+    // if (userFromDbLoading) return null;
 
-    if (!user || (!userFromDb && !toastShown)) {
-        if (!toastShown) {
-            toast.error("Please Login First!");
-            setToastShown(true);
-            router.push("/auth/login");
-        }
-        return null;
-    }
+    // if (!user || (!userFromDb && !toastShown)) {
+    //     if (!toastShown) {
+    //         toast.error("Please Login First!");
+    //         setToastShown(true);
+    //         router.push("/auth/login");
+    //     }
+    //     return null;
+    // }
 
-    if (userFromDb && (userFromDb as { data: { isDeleted: boolean } }).data.isDeleted) {
-        if (!toastShown) {
-            toast.error("User is blocked");
-            setToastShown(true);
-            router.push("/auth/login");
-        }
-        return null;
-    }
+    // if (userFromDb && (userFromDb as { data: { isDeleted: boolean } }).data.isDeleted) {
+    //     if (!toastShown) {
+    //         toast.error("User is blocked");
+    //         setToastShown(true);
+    //         router.push("/auth/login");
+    //     }
+    //     return null;
+    // }
 
+    // Always render children - no authentication required
     return <div>{children}</div>;
 };
 
